@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "PhishShield",
+  "version": "1.0",
+  "description": "Detects phishing and malicious links as you browse.",
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+}
