@@ -3,7 +3,7 @@
   "name": "PhishShield",
   "version": "1.0",
   "description": "Detects phishing and malicious links as you browse.",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage"],"host_permissions": ["https://www.virustotal.com/*"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"

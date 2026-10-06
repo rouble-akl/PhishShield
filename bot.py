@@ -1,5 +1,5 @@
 import re
-
+import time
 def extract_url(text):
     urls = re.findall(r'(https?://\S+)', text)
     return urls[0] if urls else None
@@ -8,29 +8,32 @@ import requests
 VT_API_KEY = "0c10c75b9757ff6a1bf8ffbf21742d39b6614705a789e68c049e80af429f5f80"
 
 def check_url(url):
-    headers = {"x-apikey": VT_API_KEY}
+    try:
+        headers = {"x-apikey": VT_API_KEY}
+        submit = requests.post(
+            "https://www.virustotal.com/api/v3/urls",
+            headers=headers,
+            data={"url": url}
+        )
+        analysis_id = submit.json()["data"]["id"]
 
-    # Step A: submit the URL to VirusTotal for scanning
-    submit = requests.post(
-        "https://www.virustotal.com/api/3/urls",
-        headers=headers,
-        data={"url": url}
-    )
-    print("STATUS:", submit.status_code)
-    print("BODY:", submit.text)
-    analysis_id = submit.json()["data"]["id"]
+        for _ in range(6):
+            analysis = requests.get(
+                f"https://www.virustotal.com/api/v3/analyses/{analysis_id}",
+                headers=headers
+            )
+            data = analysis.json()["data"]
+            if data["attributes"]["status"] == "completed":
+                break
+            time.sleep(2)
 
-    # Step B: fetch the analysis result
-    analysis = requests.get(
-        f"https://www.virustotal.com/api/3/analyses/{analysis_id}",
-        headers=headers
-    )
-    stats = analysis.json()["data"]["attributes"]["stats"]
-
-    if stats["malicious"] > 0 or stats["suspicious"] > 0:
-        return f"⚠️ Dangerous — flagged by {stats['malicious']} security vendor(s)."
-    else:
+        stats = data["attributes"]["stats"]
+        if stats["malicious"] > 0 or stats["suspicious"] > 0:
+            return f"⚠️ Dangerous — flagged by {stats['malicious']} security vendor(s)."
         return "✅ No known threats found for this link."
+    except Exception as e:
+        print("ERROR:", e)
+        return "Sorry, something went wrong checking that link."
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 

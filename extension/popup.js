@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const currentUrl = tab.url;
 
     // Call the (currently mock) checker function
+    statusDiv.textContent= "Scanning (this can take up to a minute) . . . ";
     const stats = await checkUrl(currentUrl);
 
     if (stats.malicious > 0 || stats.suspicious > 0) {
